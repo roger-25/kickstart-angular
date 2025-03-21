@@ -12,23 +12,27 @@ pool:
 steps:
 
   - task: NodeTool@0
+    displayName: Install Node 14
     inputs:
       versionSource: 'spec'
       versionSpec: '14.x'
 
   - task: Npm@1
+    displayName: npm install
     inputs:
       command: 'install'
       workingDir: '.'
   
   - task: Npm@1
+    displayName: npm build
     inputs:
       command: 'custom'
       workingDir: '.'
       customCommand: 'run build'
   
   - task: PublishPipelineArtifact@1
+    displayName: Publish dist
     inputs:
-      targetPath: '$(Pipeline.Workspace)/dist/kickstart-angular'
+      targetPath: './dist/kickstart-angular'
       artifact: 'kickstart-artifact'
       publishLocation: 'pipeline'
