@@ -11,12 +11,25 @@ pool:
 
 steps:
 - task: NodeTool@0
+  displayName: Node install
   inputs:
+    versionSource: 'spec'
     versionSpec: '14.x'
-  displayName: 'Install Node.js'
 
-- script: |
-    npm install -g @angular/cli
-    npm install
-    ng build --prod
-  displayName: 'npm install and build'
+- task: Npm@1
+  displayName: Npm install
+  inputs:
+    command: 'install'
+    workingDir: '.'
+- task: Npm@1
+  displayName:  Npm Run and build
+  inputs:
+    command: 'custom'
+    workingDir: '.'
+    customCommand: 'run build'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: './dist/kickstart-angular'
+    ArtifactName: 'Kickstart-dist'
+    publishLocation: 'Container'
