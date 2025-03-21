@@ -1,0 +1,34 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+
+  - task: NodeTool@0
+    inputs:
+      versionSource: 'spec'
+      versionSpec: '14.x'
+
+  - task: Npm@1
+    inputs:
+      command: 'install'
+      workingDir: '.'
+  
+  - task: Npm@1
+    inputs:
+      command: 'custom'
+      workingDir: '.'
+      customCommand: 'run build'
+  
+  - task: PublishPipelineArtifact@1
+    inputs:
+      targetPath: '$(Pipeline.Workspace)/dist/kickstart-angular'
+      artifact: 'kickstart-artifact'
+      publishLocation: 'pipeline'
