@@ -27,7 +27,7 @@ pipeline {
         }
       stage('push to s3') {
     steps {
-        sh 'aws s3 sync dist/ arn:aws:s3:::jenkins-kickstart --delete'
+        sh 'aws s3 sync dist/ s3://jenkins-kickstart/ --delete'
     }
 }
 
