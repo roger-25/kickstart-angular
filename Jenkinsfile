@@ -36,7 +36,7 @@ pipeline {
                     echo "Deploying to S3..."
                     if [ -d "dist" ]; then
                         # Use IAM role to access AWS resources
-                        aws s3 sync dist/* s3://kickstar-angular/ --delete
+                        aws s3 sync dist/kickstart-angular/* s3://kickstar-angular/ --delete
                     else
                         echo "dist directory not found"
                         exit 1
