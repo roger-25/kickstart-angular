@@ -27,15 +27,14 @@ pipeline {
             }
         }
         stage('Install AWS CLI') {
+stage('Install AWS CLI') {
     steps {
         sh '''
-            # Install AWS CLI using bundled installer (no root needed)
             if ! command -v aws &> /dev/null; then
                 echo "Installing AWS CLI..."
                 mkdir -p ${HOME}/.local/aws-cli
-                curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 
-                # Try Python unzip first, fallback to unzip if available
                 if python3 -c "import zipfile; zipfile.ZipFile('awscliv2.zip').extractall('.')"; then
                     echo "Extracted with Python"
                 elif command -v unzip &> /dev/null; then
@@ -45,11 +44,11 @@ pipeline {
                     exit 1
                 fi
 
-                # Fix: Add execute permission
+                chmod -R u+rwX aws
+                chown -R $(whoami) aws
                 chmod +x ./aws/install
 
-                # Install to user local directory
-                ./aws/install -i ${HOME}/.local/aws-cli -b ${HOME}/.local/bin
+                ./aws/install -i ${HOME}/.local/aws-cli -b ${HOME}/.local/bin --install-dir ${WORKSPACE}/.aws-cli-tmp
                 aws --version || exit 1
             fi
         '''
