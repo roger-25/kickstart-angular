@@ -25,17 +25,24 @@ pipeline {
             }
         }
         stage('Install AWS CLI') {
-            steps {
-                sh '''
-                    if ! command -v aws &> /dev/null; then
-                        echo "Installing AWS CLI..."
-                        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-                        unzip awscliv2.zip
-                        sudo ./aws/install --update
-                    fi
-                '''
-            }
-        }
+    steps {
+        sh '''
+            # Install unzip if not available
+            if ! command -v unzip &> /dev/null; then
+                echo "Installing unzip..."
+                sudo apt-get update -qq && sudo apt-get install -y unzip
+            fi
+            
+            # Install AWS CLI if not available
+            if ! command -v aws &> /dev/null; then
+                echo "Installing AWS CLI..."
+                curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                unzip awscliv2.zip
+                sudo ./aws/install --update
+            fi
+        '''
+    }
+}
         stage('Upload to S3') {
             steps {
                 withAWS(credentials: 'aws-creds', region: "${env.AWS_REGION}") {
