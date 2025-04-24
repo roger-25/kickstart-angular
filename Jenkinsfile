@@ -9,7 +9,6 @@ pipeline {
         S3_BUCKET = 'jenkins-kickstart'
         CLOUDFRONT_DISTRIBUTION_ID = 'E34VI56BFMF82S'
         AWS_REGION = 'us-east-1'
-        BUILD_FOLDER = 'dist/**/*'
     }
 
     stages {
@@ -31,21 +30,31 @@ pipeline {
             }
         }
 
-    	stage('Upload to S3') {
+        stage('Upload to S3') {
             steps {
-                // Use Jenkins S3 Publisher Plugin
                 s3Upload(
+                    file: 'dist',
                     bucket: "${env.S3_BUCKET}",
-                    path: 'dist/',
-                    includePathPattern: '**/*',
-                    workingDir: 'dist',
+                    path: '/',
+                    noUploadOnFailure: true,
+                    uploadFromSlave: false,
+                    managedArtifacts: false
                 )
-         }
+            }
+        }
 
         stage('Create CloudFront Invalidation') {
             steps {
                 script {
-                    // Create invalidation for all files
+                    // First check if AWS CLI is available
+                    sh '''
+                        if ! command -v aws &> /dev/null; then
+                            echo "AWS CLI not found, installing..."
+                            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                            unzip awscliv2.zip
+                            sudo ./aws/install
+                        fi
+                    '''
                     sh "aws cloudfront create-invalidation --distribution-id ${env.CLOUDFRONT_DISTRIBUTION_ID} --paths '/*' --region ${env.AWS_REGION}"
                 }
             }
@@ -60,5 +69,4 @@ pipeline {
             echo 'Pipeline failed! Check the logs for details.'
         }
     }
-}
 }
