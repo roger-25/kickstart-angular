@@ -28,10 +28,12 @@ pipeline {
         stage('Publish to S3') {
             steps {
                 withAWS(credentials: 'creds', region: 'ap-south-1') {
-                    s3Upload(bucket: 'jenkins-kickstart',
-                             includePathPattern: 'dist/**',
-                             workingDir: '',
-                             acl: 'PublicRead')
+                    s3Upload(
+                        bucket: 'jenkins-kickstart',
+                        includePathPattern: 'dist/**',
+                        workingDir: '',
+                        acl: 'PublicRead'
+                        )
                 }
             }
         }
