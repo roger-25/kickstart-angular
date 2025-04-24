@@ -26,23 +26,23 @@ pipeline {
             }
         }
 
-        stage('Install AWS CLI') {
-            steps {
-                sh '''
-                    # Install unzip and AWS CLI
-                    sudo apt-get update -y
-                    sudo apt-get install -y unzip curl
+        #stage('Install AWS CLI') {
+         #   steps {
+          #      sh '''
+                 # Install unzip and AWS CLI
+            #        sudo apt-get update -y
+             #       sudo apt-get install -y unzip curl
 
                     # Download AWS CLI
-                    curl https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o awscliv2.zip
+                #    curl https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o awscliv2.zip
 
 
                     # Unzip and install AWS CLI
-                    yes | unzip -o awscliv2.zip
-                    sudo ./aws/install
-                '''
-            }
-        }
+                    #yes | unzip -o awscliv2.zip
+                    #sudo ./aws/install
+                #'''
+            #}
+        #}
 
         stage('Deploy to S3') {
             steps {
