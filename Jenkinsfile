@@ -42,15 +42,10 @@ pipeline {
 
         stage('Push to S3') {
             steps {
-                withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: 'aws-credentials-id' // Replace with your Jenkins AWS credential ID
-                ]]) {
                     sh 'aws s3 sync dist/ s3://jenkins-kickstart --delete'
                 }
             }
         }
-    }
 
     post {
         success {
