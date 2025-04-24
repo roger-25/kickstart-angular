@@ -1,22 +1,27 @@
-node {
-    def nodeHome = tool name: 'NodeJS', type: 'NodeJS installations'
-    env.PATH = "${nodeHome}/bin:${env.PATH}"
+pipeline {
+    agent any
 
-    stage('Check Node Version') {
-        sh 'node -v'
-        sh 'npm -v'
+    tools {
+        nodejs 'NodeJS'
     }
 
-    stage('Install Angular CLI') {
-        sh 'npm install -g @angular/cli'
-    }
+    stages {
+        stage('Clone Repo') {
+            steps {
+                git url: 'https://github.com/roger-25/kickstart-angular.git'
+            }
+        }
 
-    stage('Install Project Dependencies') {
-        sh 'npm install'
-    }
+        stage('Install Dependencies') {
+            steps {
+                sh 'npm install'
+            }
+        }
 
-    stage('Build Angular App') {
-        sh 'npm run build'
+        stage('Build Angular App') {
+            steps {
+                sh 'npm run build'
+            }
+        }
     }
 }
-
