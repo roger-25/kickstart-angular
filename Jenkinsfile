@@ -1,46 +1,23 @@
 pipeline {
     agent any
-    environment {
-        NODE_VERSION = 'v14.19.0'
-        NPM_VERSION = '8.5.2'
-        ANGULAR_CLI_VERSION = '12.2.16'
-        NVM_DIR = "${WORKSPACE}/.nvm"
+    tools {
+        nodejs 'nodejs'
     }
     stages {
-        stage('Setup Node & Angular CLI') {
+        stage('Checkout SCM') {
             steps {
-                sh '''
-                    # Install nvm
-                    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
-                    export NVM_DIR="${NVM_DIR}"
-                    [ -s "$NVM_DIR/nvm.sh" ] && \\. "$NVM_DIR/nvm.sh"
-
-                    # Install Node.js and use it
-                    . "$NVM_DIR/nvm.sh"
-                    nvm install ${NODE_VERSION}
-                    nvm use ${NODE_VERSION}
-                    nvm alias default ${NODE_VERSION}
-
-                    # Install npm specific version
-                    npm install -g npm@${NPM_VERSION}
-
-                    # Install Angular CLI
-                    npm install -g @angular/cli@${ANGULAR_CLI_VERSION}
-                '''
+                git 'https://github.com/roger-25/kickstart-angular.git'
             }
         }
-
+        stage('Install Dependencies') {
+            steps {
+                sh 'npm install'
+            }
+        }
         stage('Build') {
             steps {
-                sh '''
-                    export NVM_DIR="${NVM_DIR}"
-                    [ -s "$NVM_DIR/nvm.sh" ] && \\. "$NVM_DIR/nvm.sh"
-                    . "$NVM_DIR/nvm.sh"
-                    nvm use ${NODE_VERSION}
-                    npm install
-                '''
+                sh 'npm run build'
             }
         }
     }
 }
-
