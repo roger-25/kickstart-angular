@@ -26,24 +26,22 @@ pipeline {
             }
         }
 
+        // No need to install AWS CLI if using IAM role for EC2
         stage('Deploy to S3') {
             environment {
-                AWS_DEFAULT_REGION = 'us-east-1'
+                AWS_DEFAULT_REGION = 'us-east-1' // Optional: Set default region
             }
             steps {
-                withCredentials([usernamePassword(credentialsId: 'creds',
-                                                 usernameVariable: 'AWS_ACCESS_KEY_ID',
-                                                 passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                    sh '''
-                        echo "Deploying to S3..."
-                        if [ -d "dist" ]; then
-                            aws s3 sync dist/ s3://kickstar-angular/ --delete
-                        else
-                            echo "dist directory not found"
-                            exit 1
-                        fi
-                    '''
-                }
+                sh '''
+                    echo "Deploying to S3..."
+                    if [ -d "dist" ]; then
+                        # Use IAM role to access AWS resources
+                        aws s3 sync dist/ s3://kickstar-angular/ --delete
+                    else
+                        echo "dist directory not found"
+                        exit 1
+                    fi
+                '''
             }
         }
     }
