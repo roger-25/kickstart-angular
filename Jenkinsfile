@@ -41,15 +41,11 @@ pipeline {
         stage('Install AWS CLI') {
     steps {
         sh '''
-            # Install unzip if not available
-            if ! command -v unzip &> /dev/null; then
-                echo "Installing unzip..."
-                sudo apt-get update && sudo apt-get install -y unzip
-            fi
-
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-${AWS_CLI_VERSION}.zip" -o "awscliv2.zip"
-            unzip -q awscliv2.zip
-            sudo ./aws/install
+            echo "Downloading AWS CLI tar.gz instead of zip to avoid unzip dependency..."
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-${AWS_CLI_VERSION}.tar.gz" -o "awscliv2.tar.gz"
+            tar -xzf awscliv2.tar.gz
+            ./aws/install -i $WORKSPACE/aws-cli -b $WORKSPACE/aws-cli-bin
+            export PATH=$WORKSPACE/aws-cli-bin:$PATH
             aws --version
         '''
     }
