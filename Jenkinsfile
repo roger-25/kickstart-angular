@@ -61,4 +61,10 @@ pipeline {
 
     post {
         success {
-            echo 'Build and
+            echo 'Build and deployment successful!'
+        }
+        failure {
+            echo 'Build or deployment failed. Please check the console output.'
+        }
+    }
+}
