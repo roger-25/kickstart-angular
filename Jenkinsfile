@@ -29,7 +29,7 @@ node {
     // Deploy the dist/ directory to S3
     stage('Deploy to S3') {
         // Use Jenkins credentials for AWS access
-        withCredentials([usernamePassword(credentialsId: 'aws-access-key',
+        withCredentials([usernamePassword(credentialsId: 'creds',
                                           usernameVariable: 'AWS_ACCESS_KEY_ID',
                                           passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
             // Set the AWS region and run the sync command
