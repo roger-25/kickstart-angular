@@ -34,18 +34,23 @@ pipeline {
                 '''
             }
         }
+      stage('Deploy to S3') {
+    steps {
+        publishS3(
+            profileName: 'Roger',
+            entries: [[
+                sourceFile: 'dist/kickstart-angular/**',
+                bucket: 'kickstar-angular',
+                selectedRegion: 'us-east-1',
+                storageClass: 'STANDARD',
+                noUploadOnFailure: false,
+                flatten: false,
+                showUploadConsole: true
+            ]],
+            userMetadata: []
+        )
+    }
+}
 
-        stage('Deploy to S3') {
-            steps {
-                withAWS(region: 'us-east-1', credentials: 'Roger') {
-                    s3Upload(
-                        file: '',
-                        bucket: 'kickstar-angular',
-                        includePathPattern: '**',
-                        workingDir: 'dist/kickstart-angular'
-                    )
-                }
-            }
-        }
     }
 }
