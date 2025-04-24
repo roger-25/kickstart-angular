@@ -39,15 +39,21 @@ pipeline {
         }
 
         stage('Install AWS CLI') {
-            steps {
-                sh '''
-                    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-${AWS_CLI_VERSION}.zip" -o "awscliv2.zip"
-                    unzip -q awscliv2.zip
-                    sudo ./aws/install
-                    aws --version
-                '''
-            }
-        }
+    steps {
+        sh '''
+            # Install unzip if not available
+            if ! command -v unzip &> /dev/null; then
+                echo "Installing unzip..."
+                sudo apt-get update && sudo apt-get install -y unzip
+            fi
+
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-${AWS_CLI_VERSION}.zip" -o "awscliv2.zip"
+            unzip -q awscliv2.zip
+            sudo ./aws/install
+            aws --version
+        '''
+    }
+}
 
         stage('Deploy to S3') {
             environment {
