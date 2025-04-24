@@ -43,11 +43,12 @@ pipeline {
 stage('Install AWS CLI') {
     steps {
         sh '''
-            sudo apt-get update
-            sudo apt-get install -y unzip
+            apt-get update && apt-get install -y unzip curl || true
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             yes | unzip -o awscliv2.zip
-            sudo ./aws/install
+            ./aws/install --bin-dir $HOME/.local/bin --install-dir $HOME/.aws-cli --update
+            export PATH=$HOME/.local/bin:$PATH
+            aws --version
         '''
     }
 }
