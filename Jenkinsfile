@@ -12,19 +12,18 @@ pipeline {
                 git url: 'https://github.com/roger-25/kickstart-angular.git', branch: 'master'
             }
         }
+      stage('Install AWS CLI') {
+    steps {
+        sh '''
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip -o awscliv2.zip
+            ./aws/install -i $WORKSPACE/aws-cli -b $WORKSPACE/bin
+            export PATH=$WORKSPACE/bin:$PATH
+            aws --version
+        '''
+    }
+}
 
-        stage('Install Dependencies') {
-            steps {
-                sh '''
-                    npm install
-
-                    # Install AWS CLI v2 with sudo
-                    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-                    sudo unzip -o awscliv2.zip
-                    sudo ./aws/install
-                '''
-            }
-        }
 
         stage('Build Angular App') {
             steps {
