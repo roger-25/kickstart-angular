@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         NODE_HOME = tool name: 'NodeJS', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
-        PATH = "${NODE_HOME}/bin:${env.PATH}"  // Use NODE_HOME here
+        PATH = "${NODE_HOME}/bin:${env.PATH}"
         AWS_DEFAULT_REGION = 'us-east-1'
     }
 
@@ -36,13 +36,19 @@ pipeline {
         stage('Build Angular App') {
             steps {
                 sh 'npm run build'
-                sh 'ls -la dist/' // Optional: Verify build output
+                sh 'ls -la dist/' // Optional: verify build output
             }
         }
-      
+
         stage('Push to S3') {
             steps {
                 sh 'aws s3 sync dist/kickstart-angular/ s3://jenkins-kickstart/ --delete'
+            }
+        }
+
+        stage('CloudFront Invalidation') {
+            steps {
+                sh 'aws cloudfront create-invalidation --distribution-id E34VI56BFMF82S --paths "/*"'
             }
         }
     }
