@@ -27,10 +27,10 @@ pipeline {
         }
 
         // No need to install AWS CLI if using IAM role for EC2
-        stage('Deploy to S3') {
-            environment {
-                AWS_DEFAULT_REGION = 'us-east-1' // Optional: Set default region
-            }
+        publishS3(bucket: 'kickstar-angular',
+          entries: [[sourceFile: 'dist/**', destinationBucket: 'jenkins-kickstart', storageClass: 'STANDARD']],
+          profileName: 'Roger',
+          userMetadata: [])
             steps {
                 sh '''
                     echo "Deploying to S3..."
