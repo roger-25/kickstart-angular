@@ -41,15 +41,24 @@ pipeline {
         stage('Install AWS CLI') {
     steps {
         sh '''
-            echo "Downloading AWS CLI tar.gz instead of zip to avoid unzip dependency..."
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-${AWS_CLI_VERSION}.tar.gz" -o "awscliv2.tar.gz"
+            echo "Downloading AWS CLI .tar.gz..."
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.tar.gz" -o "awscliv2.tar.gz"
+
+            echo "Extracting AWS CLI..."
             tar -xzf awscliv2.tar.gz
+
+            echo "Installing AWS CLI locally to workspace..."
             ./aws/install -i $WORKSPACE/aws-cli -b $WORKSPACE/aws-cli-bin
+
+            echo "Setting PATH..."
             export PATH=$WORKSPACE/aws-cli-bin:$PATH
-            aws --version
+
+            echo "Verifying AWS CLI version..."
+            $WORKSPACE/aws-cli-bin/aws --version
         '''
     }
 }
+
 
         stage('Deploy to S3') {
             environment {
