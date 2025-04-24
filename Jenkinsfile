@@ -39,29 +39,17 @@ pipeline {
                 sh 'ls -la dist/' // Optional: Verify build output
             }
         }
-      
-stage('Install AWS CLI (No sudo)') {
+        stage('Install AWS CLI') {
     steps {
         sh '''
-            mkdir -p $HOME/aws-cli-install
-            cd $HOME/aws-cli-install
+            sudo apt-get update
+            sudo apt-get install -y unzip
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-
-            # Use Python to extract the ZIP if unzip is not available
-            python3 -c "
-import zipfile
-with zipfile.ZipFile('awscliv2.zip', 'r') as zip_ref:
-    zip_ref.extractall('.')
-"
-
-            ./aws/install --bin-dir $HOME/.local/bin --install-dir $HOME/.aws-cli --update
-            echo 'export PATH=$HOME/.local/bin:$PATH' >> ~/.bashrc
-            export PATH=$HOME/.local/bin:$PATH
-            aws --version
+            yes | unzip -o awscliv2.zip
+            sudo su ./aws/install
         '''
     }
 }
-
         stage('Push to S3') {
             steps {
                     sh 'aws s3 sync dist/* s3://jenkins-kickstart/ --delete'
