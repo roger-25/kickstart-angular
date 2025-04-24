@@ -7,6 +7,8 @@ pipeline {
         S3_BUCKET = 'jenkins-kickstart'
         CLOUDFRONT_DISTRIBUTION_ID = 'E34VI56BFMF82S'
         AWS_REGION = 'us-east-1'
+        AWS_HOME = "${env.HOME}/.aws"
+        PATH = "${env.HOME}/.local/bin:${env.PATH}"
     }
     stages {
         stage('Clone Repo') {
@@ -24,35 +26,65 @@ pipeline {
                 sh 'npm run build'
             }
         }
-        
-stage('Install AWS CLI') {
-    steps {
-        sh '''
-            # Install AWS CLI locally without sudo
-            if ! command -v aws &> /dev/null; then
-                echo "Installing AWS CLI..."
-                curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-                # Use Python to extract if unzip isn't available
-                python3 -c "import zipfile; zipfile.ZipFile('awscliv2.zip').extractall('.')"
-                ./aws/install -i $HOME/aws-cli -b $HOME/bin
-                export PATH=$HOME/bin:$PATH
-                aws --version
-            fi
-        '''
-    }
-}
+        stage('Install AWS CLI') {
+            steps {
+                sh '''
+                    # Install AWS CLI using bundled installer (no root needed)
+                    if ! command -v aws &> /dev/null; then
+                        echo "Installing AWS CLI..."
+                        mkdir -p ${HOME}/.local/aws-cli
+                        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                        
+                        # Try Python unzip first, fallback to unzip if available
+                        if python3 -c "import zipfile; zipfile.ZipFile('awscliv2.zip').extractall('.')"; then
+                            echo "Extracted with Python"
+                        elif command -v unzip &> /dev/null; then
+                            unzip awscliv2.zip
+                        else
+                            echo "Error: No extraction method available"
+                            exit 1
+                        fi
+                        
+                        # Install to user local directory
+                        ./aws/install -i ${HOME}/.local/aws-cli -b ${HOME}/.local/bin
+                        aws --version || exit 1
+                    fi
+                '''
+            }
+        }
+        stage('Configure AWS Credentials') {
+            steps {
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws-creds',
+                    accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                    secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                ]]) {
+                    sh '''
+                        mkdir -p ${HOME}/.aws
+                        cat > ${HOME}/.aws/config <<EOF
+[default]
+region = ${AWS_REGION}
+output = json
+EOF
+                        cat > ${HOME}/.aws/credentials <<EOF
+[default]
+aws_access_key_id = ${AWS_ACCESS_KEY_ID}
+aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}
+EOF
+                        chmod 600 ${HOME}/.aws/*
+                    '''
+                }
+            }
+        }
         stage('Upload to S3') {
             steps {
-                withAWS(credentials: 'aws-creds', region: "${env.AWS_REGION}") {
-                    sh "aws s3 sync dist/ s3://${env.S3_BUCKET} --delete"
-                }
+                sh "aws s3 sync dist/ s3://${env.S3_BUCKET} --delete"
             }
         }
         stage('Create CloudFront Invalidation') {
             steps {
-                withAWS(credentials: 'aws-creds', region: "${env.AWS_REGION}") {
-                    sh "aws cloudfront create-invalidation --distribution-id ${env.CLOUDFRONT_DISTRIBUTION_ID} --paths '/*'"
-                }
+                sh "aws cloudfront create-invalidation --distribution-id ${env.CLOUDFRONT_DISTRIBUTION_ID} --paths '/*'"
             }
         }
     }
