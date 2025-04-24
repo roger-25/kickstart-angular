@@ -1,66 +1,75 @@
-node {
-    def nodeHome
-    def repo = 'https://github.com/roger-25/kickstart-angular.git'
-    def branch = 'master'
-    def s3Bucket = 'kickstar-angular'
+pipeline {
+    agent any
 
-    stage('Setup Node.js') {
-        nodeHome = tool name: 'NodeJS', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
-        env.PATH = "${nodeHome}/bin:${env.PATH}"
-        sh 'node -v'
-        sh 'npm -v'
+    environment {
+        NODEJS_HOME = tool name: 'NodeJS', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
+        PATH = "${NODEJS_HOME}/bin:${env.PATH}"
+        AWS_CLI_VERSION = '2.13.28'
+        REPO = 'https://github.com/roger-25/kickstart-angular.git'
+        BRANCH = 'master'
+        S3_BUCKET = 'kickstar-angular'
+        AWS_DEFAULT_REGION = 'us-east-1'
     }
 
-    stage('Checkout') {
-        git url: repo, branch: branch
-    }
+    stages {
+        stage('Verify Node.js & NPM') {
+            steps {
+                sh 'node -v'
+                sh 'npm -v'
+            }
+        }
 
-    // Install dependencies
-    stage('Install Dependencies') {
-        sh 'npm install'
-    }
+        stage('Checkout') {
+            steps {
+                git url: "${env.REPO}", branch: "${env.BRANCH}"
+            }
+        }
 
-    // Build Angular application
-    stage('Build Angular App') {
-        sh 'npm run build'
-        sh 'ls -la dist/'  // Optional: For verification
-    }
-    stage('Install AWS CLI') {
-    steps {
-        sh '''
-            # Install dependencies if not already available
-            which curl || sudo apt-get update && sudo apt-get install -y curl
-            which unzip || sudo apt-get install -y unzip
+        stage('Install Dependencies') {
+            steps {
+                sh 'npm install'
+            }
+        }
 
-            # Download and install AWS CLI v2
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip -o awscliv2.zip
-            sudo ./aws/install
+        stage('Build Angular App') {
+            steps {
+                sh 'npm run build'
+                sh 'ls -la dist/'
+            }
+        }
 
-            # Verify installation
-            aws --version
-        '''
-    }
-}
-    // Deploy the dist/ directory to S3
-    stage('Deploy to S3') {
-        // Use Jenkins credentials for AWS access
-        withCredentials([usernamePassword(credentialsId: 'creds',
-                                          usernameVariable: 'AWS_ACCESS_KEY_ID',
-                                          passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-            // Set the AWS region and run the sync command
-            withEnv(['AWS_DEFAULT_REGION=us-east-1']) {
+        stage('Install AWS CLI') {
+            steps {
                 sh '''
-                    echo "Starting S3 sync..."
-                    # Ensure dist/ exists before syncing
-                    if [ -d "dist" ]; then
-                        aws s3 sync dist/ s3://${s3Bucket}/ --delete
-                        echo "S3 sync complete!"
-                    else
-                        echo "dist/ directory does not exist. Skipping S3 deployment."
-                        exit 1
-                    fi
+                    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-${AWS_CLI_VERSION}.zip" -o "awscliv2.zip"
+                    unzip -q awscliv2.zip
+                    sudo ./aws/install
+                    aws --version
                 '''
+            }
+        }
+
+        stage('Deploy to S3') {
+            environment {
+                AWS_DEFAULT_REGION = 'us-east-1'
+            }
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'creds',
+                    usernameVariable: 'AWS_ACCESS_KEY_ID',
+                    passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                )]) {
+                    sh '''
+                        echo "Starting S3 sync..."
+                        if [ -d "dist" ]; then
+                            aws s3 sync dist/ s3://${S3_BUCKET}/ --delete
+                            echo "S3 sync complete!"
+                        else
+                            echo "dist/ directory does not exist. Skipping S3 deployment."
+                            exit 1
+                        fi
+                    '''
+                }
             }
         }
     }
