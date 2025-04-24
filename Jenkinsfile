@@ -42,7 +42,7 @@ pipeline {
       
         stage('Push to S3') {
             steps {
-                sh 'aws s3 sync dist/kickstart-angular/* s3://jenkins-kickstart/ --delete'
+                sh 'aws s3 sync dist/kickstart-angular/ s3://jenkins-kickstart/ --delete'
             }
         }
     }
