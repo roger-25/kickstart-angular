@@ -1,9 +1,17 @@
 node {
-    // Use the NodeJS tool defined in Global Tool Configuration
     def nodeHome = tool name: 'NodeJS', type: 'NodeJS installations'
     env.PATH = "${nodeHome}/bin:${env.PATH}"
 
-    stage('Install Dependencies') {
+    stage('Check Node Version') {
+        sh 'node -v'
+        sh 'npm -v'
+    }
+
+    stage('Install Angular CLI') {
+        sh 'npm install -g @angular/cli'
+    }
+
+    stage('Install Project Dependencies') {
         sh 'npm install'
     }
 
