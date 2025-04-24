@@ -1,58 +1,52 @@
-pipeline {
-    agent any
+node {
+    def nodeHome
+    def repo = 'https://github.com/roger-25/kickstart-angular.git'
+    def branch = 'master'
+    def s3Bucket = 'kickstar-angular'
 
-    environment {
-        PATH = "${HOME}/.local/bin:${env.PATH}"
+    stage('Setup Node.js') {
+        nodeHome = tool name: 'NodeJS', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
+        env.PATH = "${nodeHome}/bin:${env.PATH}"
+        env.NODE_OPTIONS = '--openssl-legacy-provider'
+        sh 'node -v'
+        sh 'npm -v'
     }
 
-    tools {
-        nodejs "NodeJS"
+    stage('Checkout') {
+        git url: repo, branch: branch
     }
 
-    stages {
-        stage('Checkout Code') {
-            steps {
-                git url: 'https://github.com/roger-25/kickstart-angular.git'
-            }
-        }
+    // Install dependencies
+    stage('Install Dependencies') {
+        sh 'npm install'
+    }
 
-        stage('Build Angular App') {
-            steps {
+    // Build Angular application
+    stage('Build Angular App') {
+        sh 'npm run build'
+        sh 'ls -la dist/'  // Optional: For verification
+    }
+
+    // Deploy the dist/ directory to S3
+    stage('Deploy to S3') {
+        // Use Jenkins credentials for AWS access
+        withCredentials([usernamePassword(credentialsId: 'aws-access-key',
+                                          usernameVariable: 'AWS_ACCESS_KEY_ID',
+                                          passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+            // Set the AWS region and run the sync command
+            withEnv(['AWS_DEFAULT_REGION=us-east-1']) {
                 sh '''
-                    npm install
-                    npm run build
+                    echo "Starting S3 sync..."
+                    # Ensure dist/ exists before syncing
+                    if [ -d "dist" ]; then
+                        aws s3 sync dist/ s3://${s3Bucket}/ --delete
+                        echo "S3 sync complete!"
+                    else
+                        echo "dist/ directory does not exist. Skipping S3 deployment."
+                        exit 1
+                    fi
                 '''
             }
-        }
-
-        stage('Publish to S3') {
-            steps {
-                withAWS(credentials: 'creds', region: 'ap-south-1') {
-                    s3Upload(
-                        bucket: 'jenkins-kickstart',
-                        includePathPattern: 'dist/**',
-                        workingDir: '',
-                        acl: 'PublicRead'
-                        )
-                }
-            }
-        }
-
-        stage('CloudFront Invalidation') {
-            steps {
-                withAWS(credentials: 'creds', region: 'ap-south-1') {
-                    cloudfrontInvalidate(distribution: 'E34VI56BFMF82S', paths: ['/*'])
-                }
-            }
-        }
-    }
-
-    post {
-        success {
-            echo 'Deployment completed successfully!'
-        }
-        failure {
-            echo 'Pipeline failed. Check logs.'
         }
     }
 }
