@@ -34,10 +34,11 @@ pipeline {
                     sudo apt-get install -y unzip curl
 
                     # Download AWS CLI
-                    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                    curl https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o awscliv2.zip
+
 
                     # Unzip and install AWS CLI
-                    unzip awscliv2.zip
+                    yes | unzip -o awscliv2.zip
                     sudo ./aws/install
                 '''
             }
