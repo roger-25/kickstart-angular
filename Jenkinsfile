@@ -7,7 +7,6 @@ node {
     stage('Setup Node.js') {
         nodeHome = tool name: 'NodeJS', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
         env.PATH = "${nodeHome}/bin:${env.PATH}"
-        env.NODE_OPTIONS = '--openssl-legacy-provider'
         sh 'node -v'
         sh 'npm -v'
     }
