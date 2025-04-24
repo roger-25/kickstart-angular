@@ -30,9 +30,10 @@ pipeline {
             steps {
                 sh '''
                     # Set up AWS CLI with your credentials or profile
-                    aws configure set aws_access_key_id YOUR_ACCESS_KEY
-                    aws configure set aws_secret_access_key YOUR_SECRET_KEY
-                    aws configure set default.region us-east-1
+                    export AWS_ACCESS_KEY_ID="your-access-key-id"
+                    export AWS_SECRET_ACCESS_KEY="your-secret-access-key"
+                    export AWS_DEFAULT_REGION="us-east-1"
+
 
                     # Deploy to S3
                     aws s3 sync dist/* s3://jenkins-kickstart/
