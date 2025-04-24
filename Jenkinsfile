@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         NODE_HOME = tool name: 'NodeJS', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
-        PATH = "${HOME}/.local/bin:${env.PATH}"
+        PATH = "${NODE_HOME}/bin:${env.PATH}"  // Use NODE_HOME here
         AWS_DEFAULT_REGION = 'us-east-1'
     }
 
@@ -39,30 +39,26 @@ pipeline {
                 sh 'ls -la dist/' // Optional: Verify build output
             }
         }
+
         stage('Install AWS CLI') {
-    steps {
-        sh '''
-            sudo apt-get update
-            sudo apt-get install -y unzip
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            yes | unzip -o awscliv2.zip
-            sudo su ./aws/install
-        '''
-    }
-}
-        stage('Push to S3') {
             steps {
-                    sh 'aws s3 sync dist/* s3://jenkins-kickstart/ --delete'
-                }
+                sh '''
+                    sudo apt-get update
+                    sudo apt-get install -y unzip
+                    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                    unzip -o awscliv2.zip
+                    sudo ./aws/install
+                '''
             }
         }
 
-    post {
-        success {
-            echo 'Build and deployment successful!'
-        }
-        failure {
-            echo 'Build or deployment failed. Please check the console output.'
+        stage('Push to S3') {
+            steps {
+                sh 'aws s3 sync dist/ s3://jenkins-kickstart/ --delete'
+            }
         }
     }
-}
+
+    post {
+        success {
+            echo 'Build and
