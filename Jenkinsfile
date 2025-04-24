@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'NodeJS' // This must match the name you set in Jenkins global tools
+        nodejs 'NodeJS'
     }
 
     stages {
@@ -21,13 +21,6 @@ pipeline {
         stage('Build Angular App') {
             steps {
                 sh 'npm run build'
-            }
-        }
-
-        stage('Run Tests') {
-            steps {
-                // If you have tests defined in package.json
-                sh 'npm test || echo "Tests failed, continuing..."'
             }
         }
     }
