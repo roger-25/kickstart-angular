@@ -15,31 +15,38 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm install'
+                sh '''
+                    # Install dependencies for Angular
+                    npm install
+
+                    # Install AWS CLI (v2) with sudo permissions
+                    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                    sudo unzip -o awscliv2.zip
+                    sudo ./aws/install
+                '''
             }
         }
 
         stage('Build Angular App') {
             steps {
-                sh 'npm run build'
-                sh 'ls -la dist/' // Optional: to check build output
+                sh '''
+                    npm run build
+                    ls -la dist/
+                '''
             }
         }
 
-stage('Deploy to S3') {
-    steps {
-        publishS3(
-            bucket: 'kickstar-angular',
-            entries: [[
-                sourceFile: 'dist/kickstart-angular/**',
-                destinationBucket: '',
-                storageClass: 'STANDARD'
-            ]],
-            profileName: 'Roger',
-            userMetadata: []
-        )
-    }
-}
-
+        stage('Deploy to S3') {
+            steps {
+                withAWS(region: 'us-east-1', credentials: 'Roger') {
+                    s3Upload(
+                        bucket: 'kickstar-angular',
+                        path: '/',
+                        workingDir: 'dist/kickstart-angular',
+                        includePathPattern: '**/*'
+                    )
+                }
+            }
+        }
     }
 }
