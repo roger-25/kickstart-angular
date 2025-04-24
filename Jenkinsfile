@@ -26,16 +26,34 @@ pipeline {
             }
         }
 
+        stage('Install AWS CLI') {
+            steps {
+                sh '''
+                    # Install unzip and AWS CLI
+                    sudo apt-get update -y
+                    sudo apt-get install -y unzip curl
+
+                    # Download AWS CLI
+                    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+
+                    # Unzip and install AWS CLI
+                    unzip awscliv2.zip
+                    sudo ./aws/install
+                '''
+            }
+        }
+
         stage('Deploy to S3') {
             steps {
-                awsCLI(
-                    accessKey: 'YOUR_ACCESS_KEY',
-                    secretKey: 'YOUR_SECRET_KEY',
-                    region: 'YOUR_REGION',
-                    commands: [
-                        's3 cp dist/kickstart-angular/ s3://kickstar-angular/ --recursive'
-                    ]
-                )
+                sh '''
+                    # Set up AWS CLI with your credentials or profile
+                    aws configure set aws_access_key_id YOUR_ACCESS_KEY
+                    aws configure set aws_secret_access_key YOUR_SECRET_KEY
+                    aws configure set default.region YOUR_REGION
+
+                    # Deploy to S3
+                    aws s3 cp dist/kickstart-angular/ s3://kickstar-angular/ --recursive
+                '''
             }
         }
     }
