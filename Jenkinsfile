@@ -1,6 +1,6 @@
 node {
     // Use the NodeJS tool defined in Global Tool Configuration
-    def nodeHome = tool name: 'NodeJS', type: 'NodeJSInstallation'
+    def nodeHome = tool name: 'NodeJS', type: 'NodeJSInstallations'
     env.PATH = "${nodeHome}/bin:${env.PATH}"  // Add NodeJS to PATH
 
     stage('Clone Repo') {
