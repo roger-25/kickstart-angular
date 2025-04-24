@@ -25,9 +25,9 @@ pipeline {
                 sh 'ls -la dist/' // Optional: to check build output
             }
         }
-
-                    # Deploy to S3
-                    aws s3 sync dist/* s3://jenkins-kickstart/
+      stage('push to s3') {
+            steps {
+                    sh 'aws s3 sync dist/* s3://jenkins-kickstart/'
                 '''
             }
         }
