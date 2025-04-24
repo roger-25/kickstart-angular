@@ -27,26 +27,25 @@ pipeline {
             }
         }
         stage('Install AWS CLI') {
-stage('Install AWS CLI') {
-    steps {
-        sh '''
-            if ! command -v aws &> /dev/null; then
-                echo "Installing AWS CLI..."
-                mkdir -p ${HOME}/.local/aws-cli
-                curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            steps {
+                sh '''
+                    if ! command -v aws &> /dev/null; then
+                        echo "Installing AWS CLI..."
+                        mkdir -p ${HOME}/.local/aws-cli
+                        curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 
-                if python3 -c "import zipfile; zipfile.ZipFile('awscliv2.zip').extractall('.')"; then
-                    echo "Extracted with Python"
-                elif command -v unzip &> /dev/null; then
-                    unzip awscliv2.zip
-                else
-                    echo "Error: No extraction method available"
-                    exit 1
-                fi
+                        if python3 -c "import zipfile; zipfile.ZipFile('awscliv2.zip').extractall('.')"; then
+                            echo "Extracted with Python"
+                        elif command -v unzip &> /dev/null; then
+                            unzip awscliv2.zip
+                        else
+                            echo "Error: No extraction method available"
+                            exit 1
+                            fi
 
-                chmod -R u+rwX aws
-                chown -R $(whoami) aws
-                chmod +x ./aws/install
+                        chmod -R u+rwX aws
+                        chown -R $(whoami) aws
+                        chmod +x ./aws/install
 
                 ./aws/install -i ${HOME}/.local/aws-cli -b ${HOME}/.local/bin --install-dir ${WORKSPACE}/.aws-cli-tmp
                 aws --version || exit 1
@@ -99,5 +98,4 @@ EOF
             echo 'Pipeline failed! Check the logs for details.'
         }
     }
-}
 }
