@@ -25,7 +25,23 @@ node {
         sh 'npm run build'
         sh 'ls -la dist/'  // Optional: For verification
     }
+    stage('Install AWS CLI') {
+    steps {
+        sh '''
+            # Install dependencies if not already available
+            which curl || sudo apt-get update && sudo apt-get install -y curl
+            which unzip || sudo apt-get install -y unzip
 
+            # Download and install AWS CLI v2
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip -o awscliv2.zip
+            sudo ./aws/install
+
+            # Verify installation
+            aws --version
+        '''
+    }
+}
     // Deploy the dist/ directory to S3
     stage('Deploy to S3') {
         // Use Jenkins credentials for AWS access
