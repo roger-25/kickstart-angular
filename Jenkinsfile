@@ -50,7 +50,7 @@ pipeline {
                     # Set up AWS CLI with your credentials or profile
                     aws configure set aws_access_key_id YOUR_ACCESS_KEY
                     aws configure set aws_secret_access_key YOUR_SECRET_KEY
-                    aws configure set default.region YOUR_REGION
+                    aws configure set default.region us-east-1
 
                     # Deploy to S3
                     aws s3 cp dist/kickstart-angular/ s3://kickstar-angular/ --recursive
