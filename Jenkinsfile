@@ -26,15 +26,6 @@ pipeline {
             }
         }
 
-        stage('Deploy to S3') {
-            steps {
-                sh '''
-                    # Set up AWS CLI with your credentials or profile
-                    export AWS_ACCESS_KEY_ID="your-access-key-id"
-                    export AWS_SECRET_ACCESS_KEY="your-secret-access-key"
-                    export AWS_DEFAULT_REGION="us-east-1"
-
-
                     # Deploy to S3
                     aws s3 sync dist/* s3://jenkins-kickstart/
                 '''
