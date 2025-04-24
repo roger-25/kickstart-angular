@@ -35,7 +35,7 @@ pipeline {
                     aws configure set default.region us-east-1
 
                     # Deploy to S3
-                    aws s3 cp dist/kickstart-angular/ s3://jenkins-kickstart / --recursive
+                    aws s3 sync dist/* s3://jenkins-kickstart/ --recursive
                 '''
             }
         }
