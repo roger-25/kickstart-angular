@@ -16,10 +16,9 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh '''
-                    # Install dependencies for Angular
                     npm install
 
-                    # Install AWS CLI (v2) with sudo permissions
+                    # Install AWS CLI v2 with sudo
                     curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
                     sudo unzip -o awscliv2.zip
                     sudo ./aws/install
@@ -40,10 +39,10 @@ pipeline {
             steps {
                 withAWS(region: 'us-east-1', credentials: 'Roger') {
                     s3Upload(
+                        file: '',
                         bucket: 'kickstar-angular',
-                        path: '/',
-                        workingDir: 'dist/kickstart-angular',
-                        includePathPattern: '**/*'
+                        includePathPattern: '**',
+                        workingDir: 'dist/kickstart-angular'
                     )
                 }
             }
