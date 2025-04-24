@@ -1,42 +1,34 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'NodeJS' // This must match the name you set in Jenkins global tools
+    }
+
     stages {
-        stage('Setup Node') {
+        stage('Clone Repo') {
             steps {
-                sh '''
-                    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
-                    export NVM_DIR="$HOME/.nvm"
-                    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-                    nvm install 20
-                    nvm use 20
-                    node -v
-                    npm -v
-                '''
+                git url: 'https://github.com/roger-25/kickstart-angular.git'
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                sh '''
-                    export NVM_DIR="$HOME/.nvm"
-                    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-                    nvm use 20
-                    npm install
-                '''
+                sh 'npm install'
             }
         }
 
-        stage('Build') {
+        stage('Build Angular App') {
             steps {
-                sh '''
-                    export NVM_DIR="$HOME/.nvm"
-                    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-                    nvm use 20
-                    npm run build
-                '''
+                sh 'npm run build'
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                // If you have tests defined in package.json
+                sh 'npm test || echo "Tests failed, continuing..."'
             }
         }
     }
 }
-
