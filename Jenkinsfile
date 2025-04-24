@@ -39,19 +39,7 @@ pipeline {
                 sh 'ls -la dist/' // Optional: Verify build output
             }
         }
-
-        stage('Install AWS CLI') {
-            steps {
-             sh '''
-                  apt-get update
-                  apt-get install -y unzip
-                  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-                  yes | unzip -o awscliv2.zip
-                  ./aws/install
-                '''
-            }
-        }
-
+      
         stage('Push to S3') {
             steps {
                 sh 'aws s3 sync dist/ s3://jenkins-kickstart/ --delete'
