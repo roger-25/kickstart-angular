@@ -24,6 +24,28 @@ pipeline {
                   }
                 }
               }
+        stage('Download SonarQube Report') {
+    steps {
+        script {
+            def sonarHost = 'http://44.206.248.192:9000'
+            def projectKey = 'kickstart-angular'
+            def authToken = 'squ_4d436fa3da2f841eeff6c9c8c7c8e745045e8f41'
+
+            // Download Issues Report (JSON format)
+            sh """
+                curl -u ${authToken}: \
+                '${sonarHost}/api/issues/search?componentKeys=${projectKey}&resolved=false' \
+                -o sonar-report.json
+            """
+
+            // Archive the JSON report (optional)
+            archiveArtifacts artifacts: 'sonar-report.json', fingerprint: true
+        }
+    }
+}
+
+
+      
         stage('Install Dependencies') {
             steps {
                 sh 'npm install'
