@@ -8,22 +8,20 @@ pipeline {
     }
 
     stages {
-        stage('Clean Workspace') {
-            steps {
-                echo 'Cleaning old build artifacts...'
-                sh 'rm -rf dist/ node_modules/'
-            }
-        }
-
         stage('Checkout Code') {
             steps {
                 git url: 'https://github.com/roger-25/kickstart-angular.git', branch: 'master'
             }
         }
 
-        stage('Install Angular CLI (if required)') {
+        stage('Sonarqube scan') {
             steps {
-                sh 'npm install -g @angular/cli'
+                script {
+                    scannerHome = tool 'Sonar'
+                }
+                withSonarQubeEnv('Sonar') {
+                    sh "${scannerHome}/bin/sonar-scanner"
+                }
             }
         }
 
@@ -36,7 +34,6 @@ pipeline {
         stage('Build Angular App') {
             steps {
                 sh 'npm run build'
-                sh 'ls -la dist/' // Optional: verify build output
             }
         }
 
