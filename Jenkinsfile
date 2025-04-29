@@ -18,13 +18,7 @@ pipeline {
                   }
                 }
               }
-      
-        stage('Install Dependencies') {
-            steps {
-                sh 'npm install'
-            }
-        }
-        stage('Download SonarQube Report') {
+      stage('Download SonarQube Report') {
     steps {
         script {
             def sonarHost = 'http://34.205.18.219:9000'
@@ -43,6 +37,12 @@ pipeline {
         }
     }
 }
+        stage('Install Dependencies') {
+            steps {
+                sh 'npm install'
+            }
+        }
+        
       
         stage('Build Angular App') {
             steps {
