@@ -8,11 +8,11 @@ pipeline {
     }
 
     stages {
-        stage('Checkout Code') {
-            steps {
-                git url: 'https://github.com/roger-25/kickstart-angular.git', branch: 'master'
-            }
-        }
+       # stage('Checkout Code') {
+        #    steps {
+         #       git url: 'https://github.com/roger-25/kickstart-angular.git', branch: 'master'
+          #  }
+        # }
 
         stage ('Sonarqube scan'){
            steps{
@@ -24,6 +24,12 @@ pipeline {
                   }
                 }
               }
+      
+        stage('Install Dependencies') {
+            steps {
+                sh 'npm install'
+            }
+        }
         stage('Download SonarQube Report') {
     steps {
         script {
@@ -43,15 +49,7 @@ pipeline {
         }
     }
 }
-
-
       
-        stage('Install Dependencies') {
-            steps {
-                sh 'npm install'
-            }
-        }
-
         stage('Build Angular App') {
             steps {
                 sh 'npm run build'
