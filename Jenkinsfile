@@ -27,7 +27,7 @@ pipeline {
         stage('Download SonarQube Report') {
     steps {
         script {
-            def sonarHost = 'http://44.206.248.192:9000'
+            def sonarHost = 'http://34.205.18.219:9000'
             def projectKey = 'kickstart-angular'
             def authToken = 'squ_4d436fa3da2f841eeff6c9c8c7c8e745045e8f41'
 
