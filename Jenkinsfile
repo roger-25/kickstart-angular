@@ -19,6 +19,9 @@ pipeline {
            steps{
             script {
               def scannerHome = tool 'Sonar'
+              def sonarHost = 'http://http://54.145.206.21/:9000'
+              def projectKey = 'kickstart-angular'
+              def authToken = 'squ_4d436fa3da2f841eeff6c9c8c7c8e745045e8f41'
                 }
                 withSonarQubeEnv('Sonar') {
               sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=kickstart-angular -Dsonar.sources=src"
