@@ -18,7 +18,7 @@ pipeline {
         stage ('Sonarqube scan'){
            steps{
             script {
-              scannerHome = tool 'Sonar'
+              def scannerHome = tool 'Sonar'
                 }
                 withSonarQubeEnv('Sonar') {
               sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=kickstart-angular -Dsonar.sources=src"
