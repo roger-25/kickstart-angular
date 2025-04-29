@@ -8,12 +8,6 @@ pipeline {
     }
 
     stages {
-       # stage('Checkout Code') {
-        #    steps {
-         #       git url: 'https://github.com/roger-25/kickstart-angular.git', branch: 'master'
-          #  }
-        # }
-
         stage ('Sonarqube scan'){
            steps{
             script {
