@@ -7,14 +7,14 @@ pipeline {
         AWS_DEFAULT_REGION = 'us-east-1'
     }
 
-
+      stages {
         stage('Install Dependencies') {
             steps {
                 sh 'npm install'
             }
         }
 
-      stages {
+
         stage ('Sonarqube scan'){
            steps{
             script {
