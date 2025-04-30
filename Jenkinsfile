@@ -14,17 +14,20 @@ pipeline {
             }
         }
 
+        stage('Sonarqube scan'){           // Defines a pipeline stage named 'Sonarqube scan'
+    steps {
+        script {
+            scannerHome = tool 'Sonar'   // Fetches the path of the SonarQube scanner tool named 'Sonar' (configured in Jenkins > Global Tool Configuration)
+        }
+        withSonarQubeEnv('Sonar') {      // Sets up the SonarQube environment using credentials and server settings named 'Sonar' (configured in Jenkins > Configure System)
+            sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=kickstart-angular -Dsonar.sources=src"
+            // Runs the sonar-scanner CLI with:
+            // - sonar.projectKey: Unique identifier for the project in SonarQube
+            // - sonar.sources: Source code directory to analyze (here, 'src')
+        }
+    }
+}
 
-         stage ('Sonarqube scan'){
-           steps{
-            script {
-              scannerHome = tool 'Sonar'
-                }
-                withSonarQubeEnv('Sonar') {
-              sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=kickstart-angular -Dsonar.sources=src"
-                  }
-                }
-              }
 
           
         stage('Build Angular App') {
