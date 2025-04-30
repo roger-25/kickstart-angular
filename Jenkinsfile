@@ -1,11 +1,18 @@
 pipeline {
     agent any
 
-    environment {
-        NODE_HOME = tool name: 'NodeJS', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
-        PATH = "${NODE_HOME}/bin:${env.PATH}"
-        AWS_DEFAULT_REGION = 'us-east-1'
-    }
+      environment {
+    NODE_HOME = tool name: 'NodeJS', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
+    // Sets NODE_HOME to the installation path of a NodeJS tool configured in Jenkins (Manage Jenkins > Global Tool Configuration).
+    // 'NodeJS' is the name of that tool.
+
+    PATH = "${NODE_HOME}/bin:${env.PATH}"
+    // Updates the system PATH variable to include NodeJS binaries so you can run commands like `node` or `npm` directly in shell steps.
+
+    AWS_DEFAULT_REGION = 'us-east-1'
+    // Sets the default AWS region for any AWS CLI commands or SDKs used in the pipeline to 'us-east-1'.
+}
+
 
       stages {
         stage('Install Dependencies') {
